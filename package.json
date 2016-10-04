@@ -1,7 +1,7 @@
 {
   "author": "https://github.com/seandesmond/angular-payment/graphs/contributors",
   "name": "@points/angular-payment",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "dist/angular-payment-0.3.0.js",
   "dependencies": {},
   "devDependencies": {
