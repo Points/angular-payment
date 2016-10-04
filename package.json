@@ -1,7 +1,7 @@
 {
     "author": "https://github.com/seandesmond/angular-payment/graphs/contributors",
-    "name": "angular-payment",
-    "version": "0.4.0-SNAPSHOT",
+    "name": "@points/angular-payment",
+    "version": "0.4.0",
     "dependencies": {},
     "devDependencies": {
         "grunt": "~0.4.1",
@@ -18,5 +18,9 @@
         "grunt-ngdocs": "git://github.com/m7r/grunt-ngdocs",
         "grunt-conventional-changelog": "~0.1.2"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "publishConfig": {
+        "registry": "http://tor-npm.points.com:5984/registry/_design/app/_rewrite",
+        "scope": "@points"
+    }
 }
