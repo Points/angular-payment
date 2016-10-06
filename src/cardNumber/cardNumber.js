@@ -53,6 +53,21 @@ angular.module('payment.cardNumber', ['payment.service', 'payment.restrictNumeri
                     elm.val(value + digit + ' ');
                 }
             },
+            trimCardNumber = function (e) {
+              var keyCode = e.which || e.keyCode;
+              var backspace = 8;
+              if (keyCode !== backspace) return;
+
+              var elm = angular.element(e.currentTarget || e.srcElement);
+              var value = elm.val();
+              var selectionStart = elm.prop('selectionStart');
+              if (selectionStart === null) return;
+              if (selectionStart !== value.length) return;
+
+              if (/\s/.test(value.slice(-1))) {
+                elm.val(value.slice(0, -1));
+              }
+            },
             reFormatCardNumber = function (e) {
                 var elm = angular.element(e.currentTarget || e.srcElement);
                 $timeout(function () {
@@ -69,6 +84,7 @@ angular.module('payment.cardNumber', ['payment.service', 'payment.restrictNumeri
 
                 element.bind('keypress', restrictCardNumber);
                 element.bind('keypress', formatCardNumber);
+                element.bind('keydown', trimCardNumber);
                 element.bind('paste', reFormatCardNumber);
 
                 function applyCardType(value) {

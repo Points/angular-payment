@@ -50,7 +50,7 @@ angular.module('payment.service', [])
                     luhn: true
                 }, {
                     type: 'mastercard',
-                    pattern: /^5[1-5]/,
+                    pattern: /^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[0-1]|2720)/,
                     format: defaultFormat,
                     length: [16],
                     cvcLength: [3],
@@ -205,13 +205,17 @@ angular.module('payment.service', [])
             formatCardNumber: formatCardNumber
         };
     }]);
+
 angular.module('payment.restrictNumeric', [])
-    .directive('restrictNumeric', function () {
+    .directive('restrictNumeric', function() {
         'use strict';
-        var restrictNumeric = function (e) {
-                if (e.metaKey || e.ctrlKey || e.which === 0 || e.which < 33) { return; }
-                if (e.which === 32 || !!/[\d\s]/.test(String.fromCharCode(e.which)) === false) { e.preventDefault(); } // jshint ignore:line
-            };
+        var restrictNumeric = function(e) {
+            if(!e.which){
+                e.which = e.keyCode;
+            }
+            if (e.metaKey || e.ctrlKey || e.which === 0 || e.which < 33) {return;}
+            if (e.which === 32 || !!/[\d\s]/.test(String.fromCharCode(e.which)) === false) {e.preventDefault();} // jshint ignore:line
+        };
 
         return {
             restrict: 'A',
@@ -234,8 +238,8 @@ angular.module('payment.cardCvc', ['payment.service', 'payment.restrictNumeric']
     .directive('cardCvcFormatter', function () {
         'use strict';
         var restrictCvc = function (e) {
-            var elm = angular.element(e.currentTarget), digit, val;
-            digit = String.fromCharCode(e.which);
+            var elm = angular.element(e.currentTarget || e.srcElement), digit, val;
+            digit = String.fromCharCode(e.which || e.keyCode);
             if (!/^\d+$/.test(digit)) { return; }
 
             val = elm.val() + digit;
@@ -286,9 +290,9 @@ angular.module('payment.cardExpiry', ['payment.service', 'payment.restrictNumeri
         var formatExpiry = function (e) {
                 var elm, digit, val;
 
-                digit = String.fromCharCode(e.which);
+                digit = String.fromCharCode(e.which  || e.keyCode);
                 if (!/^\d+$/.test(digit)) { return; }
-                elm = angular.element(e.currentTarget);
+                elm = angular.element(e.currentTarget || e.srcElement);
                 val = elm.val() + digit;
                 if (/^\d$/.test(val) && (val !== '0' && val !== '1')) {
                     e.preventDefault();
@@ -301,18 +305,18 @@ angular.module('payment.cardExpiry', ['payment.service', 'payment.restrictNumeri
             formatForwardExpiry = function (e) {
                 var elm, digit, val;
 
-                digit = String.fromCharCode(e.which);
+                digit = String.fromCharCode(e.which  || e.keyCode);
                 if (!/^\d+$/.test(digit)) { return; }
-                elm = angular.element(e.currentTarget);
+                elm = angular.element(e.currentTarget || e.srcElement);
                 val = elm.val();
                 if (/^\d\d$/.test(val)) { elm.val(val + ' / '); }
             },
             formatForwardSlash = function (e) {
                 var elm, slash, val;
 
-                slash = String.fromCharCode(e.which);
+                slash = String.fromCharCode(e.which  || e.keyCode);
                 if (slash !== '/') { return; }
-                elm = angular.element(e.currentTarget);
+                elm = angular.element(e.currentTarget || e.srcElement);
                 val = elm.val();
                 if (/^\d$/.test(val) && val !== '0') { elm.val(val + " / "); }
             },
@@ -320,9 +324,9 @@ angular.module('payment.cardExpiry', ['payment.service', 'payment.restrictNumeri
                 var elm, value;
 
                 if (e.meta) { return; }
-                elm = angular.element(e.currentTarget);
+                elm = angular.element(e.currentTarget || e.srcElement);
                 value = elm.val();
-                if (e.which !== 8) { return; }
+                if ((e.which  || e.keyCode) !== 8) { return; }
                 if ((elm.prop('selectionStart') != null) && elm.prop('selectionStart') !== value.length) { return; }
                 if (/\d(\s|\/)+$/.test(value)) {
                     e.preventDefault();
@@ -333,9 +337,9 @@ angular.module('payment.cardExpiry', ['payment.service', 'payment.restrictNumeri
                 }
             },
             restrictExpiry = function (e) {
-                var elm = angular.element(e.currentTarget), digit, value;
+                var elm = angular.element(e.currentTarget || e.srcElement), digit, value;
 
-                digit = String.fromCharCode(e.which);
+                digit = String.fromCharCode(e.which  || e.keyCode);
                 if (!/^\d+$/.test(digit)) { return; }
                 if (payment.hasTextSelected(elm)) { return; }
                 value = elm.val() + digit;
@@ -407,7 +411,7 @@ angular.module('payment.cardNumber', ['payment.service', 'payment.restrictNumeri
     .directive('cardNumberFormatter', ['$timeout', '$parse', 'payment', function ($timeout, $parse, payment) {
         'use strict';
         var restrictCardNumber = function (e) {
-                var card, digit = String.fromCharCode(e.which), value, elm = angular.element(e.currentTarget);
+                var card, digit = String.fromCharCode(e.which || e.keyCode), value, elm = angular.element(e.currentTarget || e.srcElement);
 
                 if (!/^\d+$/.test(digit)) { return; }
                 if (payment.hasTextSelected(elm)) { return; }
@@ -424,10 +428,10 @@ angular.module('payment.cardNumber', ['payment.service', 'payment.restrictNumeri
             formatCardNumber = function (e) {
                 var elm, card, digit, length, re, upperLength = 16, value;
 
-                digit = String.fromCharCode(e.which);
+                digit = String.fromCharCode(e.which || e.keyCode);
                 if (!/^\d+$/.test(digit)) { return; }
 
-                elm = angular.element(e.currentTarget);
+                elm = angular.element(e.currentTarget || e.srcElement);
                 value = elm.val();
                 card = payment.cardFromNumber(value + digit);
                 length = (value.replace(/\D/g, '') + digit).length;
@@ -449,8 +453,23 @@ angular.module('payment.cardNumber', ['payment.service', 'payment.restrictNumeri
                     elm.val(value + digit + ' ');
                 }
             },
+            trimCardNumber = function (e) {
+              var keyCode = e.which || e.keyCode;
+              var backspace = 8;
+              if (keyCode !== backspace) return;
+
+              var elm = angular.element(e.currentTarget || e.srcElement);
+              var value = elm.val();
+              var selectionStart = elm.prop('selectionStart');
+              if (selectionStart === null) return;
+              if (selectionStart !== value.length) return;
+
+              if (/\s/.test(value.slice(-1))) {
+                elm.val(value.slice(0, -1));
+              }
+            },
             reFormatCardNumber = function (e) {
-                var elm = angular.element(e.currentTarget);
+                var elm = angular.element(e.currentTarget || e.srcElement);
                 $timeout(function () {
                     var value = elm.val();
                     value = payment.formatCardNumber(value);
@@ -465,6 +484,7 @@ angular.module('payment.cardNumber', ['payment.service', 'payment.restrictNumeri
 
                 element.bind('keypress', restrictCardNumber);
                 element.bind('keypress', formatCardNumber);
+                element.bind('keydown', trimCardNumber);
                 element.bind('paste', reFormatCardNumber);
 
                 function applyCardType(value) {

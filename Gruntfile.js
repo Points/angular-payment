@@ -46,14 +46,14 @@ module.exports = function (grunt) {
                     banner: '<%= meta.modules %>\n'
                 },
                 src: [], //src filled in by build task
-                dest: '<%= dist %>/<%= filename %>-<%= pkg.version %>.js'
+                dest: '<%= dist %>/<%= filename %>.js'
             },
             dist_tpls: {
                 options: {
                     banner: '<%= meta.all %>\n<%= meta.tplmodules %>\n'
                 },
                 src: [], //src filled in by build task
-                dest: '<%= dist %>/<%= filename %>-tpls-<%= pkg.version %>.js'
+                dest: '<%= dist %>/<%= filename %>-tpls.js'
             }
         },
         copy: {
@@ -85,12 +85,12 @@ module.exports = function (grunt) {
         },
         uglify: {
             dist: {
-                src: ['<%= dist %>/<%= filename %>-<%= pkg.version %>.js'],
-                dest: '<%= dist %>/<%= filename %>-<%= pkg.version %>.min.js'
+                src: ['<%= dist %>/<%= filename %>.js'],
+                dest: '<%= dist %>/<%= filename %>.min.js'
             },
             dist_tpls: {
-                src: ['<%= dist %>/<%= filename %>-tpls-<%= pkg.version %>.js'],
-                dest: '<%= dist %>/<%= filename %>-tpls-<%= pkg.version %>.min.js'
+                src: ['<%= dist %>/<%= filename %>-tpls.js'],
+                dest: '<%= dist %>/<%= filename %>-tpls.min.js'
             }
         },
         html2js: {
